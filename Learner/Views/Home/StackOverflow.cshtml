@@ -1,0 +1,44 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/knockout-2.1.0.js"></script>
+
+<tbody>
+    <!-- ko foreach: { data: calls, as: 'call' } -->
+    <tr> 
+        <td><span data-bind="text: description"></span></td>
+        <td><span data-bind="text: url"></span></td>
+        <td><span data-bind="text: method"></span></td>
+        <!-- ko foreach: parameterNames -->
+        <td>
+            <span class="params" data-bind="text: key"></span> - <span class="params" data-bind="text: value"></span>                       
+        </td>
+        <!-- /ko -->
+        <td class="last"><a href="" class="btn btn-mini">Edit</a></td>
+    </tr>
+    <!-- /ko -->
+</tbody>
+
+<script>
+    function AppViewModel() {
+        var self = this;
+
+        self.calls = ko.observableArray([
+            { description: 'Create a new project', url: '/feeds/create', method: 'Get', params: [{ success: "true", token: "123adfds1" }] },
+            { description: 'Get info', url: '/feeds/info', method: 'Get', params: [{ success: "true", token: "123adfds1" }] },
+        ]);
+
+        ko.utils.arrayForEach(self.calls(), function(elem) {
+            elem.parameterNames = ko.computed(function () {
+                var keys = [];
+                ko.utils.arrayForEach(elem.params, function (paramEntry) {
+                    for (var key in paramEntry)
+                        keys.push({ key: key, value: paramEntry[key] });
+                });
+
+                return keys;
+            });
+        });
+    }
+    ko.applyBindings(new AppViewModel());
+</script>
