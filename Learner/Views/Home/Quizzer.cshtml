@@ -140,6 +140,10 @@
                 quiz(stringArray);
             }
 
+            $scope.sortTopics = function () {
+                fisherYates(jsonified);
+            }
+
 //            var updatedJson = quizTopics.map(function (value, index) { return { name: "", entries: value.split("\n") }; });
   //          console.log(JSON.stringify(updatedJson));
         }
@@ -154,13 +158,14 @@
 
 <div ng-app="xyz">
     <div ng-controller="QuizCtrl">
-        <ul ng-repeat="quizTopic in jsonified">
-            <li ng-click="openTopic(quizTopic)">Name: {{quizTopic.name}} [{{quizTopic.substring(0, 40)}}] ({{quizTopic.entries.length}})</li>
-        </ul>
+        <div >
+            <div ng-repeat="quizTopic in jsonified" ng-click="openTopic(quizTopic)">Name: {{quizTopic.name}} [{{quizTopic.entries[0].substring(0, 40)}}] ({{quizTopic.entries.length}})</div>
+        </div>
 @*        <ul ng-repeat="quizTopic in quizTopics">
             <li ng-click="openTopic(quizTopic)">{{quizTopic.substring(0, 30)}}</li>
         </ul>*@
 
+        <button ng-click="sortTopics()">Reorder</button>
 
     </div>
 </div>
