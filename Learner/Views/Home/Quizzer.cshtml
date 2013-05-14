@@ -166,12 +166,12 @@
                     function (entry) {
                         return {
                             name: entry.name,
-                            entries: entry.entries,
-                            dateReviewed: new Date()
+                            dateReviewed: new Date(),
+                            entries: entry.entries
                         };
                     });
 
-                console.log(JSON.stringify(output));
+                console.log(angular.toJson(output));
             };
 
             $scope.getScope = function() {
