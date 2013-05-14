@@ -161,8 +161,17 @@
                 entryParent.entries.splice(entryParent.indexOf(entry), 1);
             };
 
-            $scope.recreateJson = function() {
-                console.log(JSON.stringify(jsonified));
+            $scope.recreateJson = function () {
+                var output = jsonified.map(
+                    function (entry) {
+                        return {
+                            name: entry.name,
+                            entries: entry.entries,
+                            dateReviewed: new Date()
+                        };
+                    });
+
+                console.log(JSON.stringify(output));
             };
 
             $scope.getScope = function() {
