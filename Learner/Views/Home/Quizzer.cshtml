@@ -28,6 +28,15 @@
     
         <button ng-click="sortTopics()">Reorder</button>
         <button ng-click="recreateJson()">Recreate</button>
+        <button ng-click="initAddMode()">Add</button>
+
+        <div ng-show="addMode">
+            <input type="text" ng-model="entryName"></text>
+            <textarea ng-model="newContent">
+
+            </textarea>
+            <button ng-click="add()">Add</button>
+        </div>
         
         <pre>{{getScope()}}</pre>
         <div>
@@ -98,6 +107,9 @@
                         return (item.text.length > 0);
                     });
                 });
+
+                console.log("Randomizing order of sets");
+                $scope.sortTopics();
             };
 
             $scope.openTopic = function(element) {
@@ -110,17 +122,19 @@
             $scope.quizOnArray = function(element) {
                 console.debug("About to quiz");
 
+                fisherYates(element);
+
                 $scope.selectedEntrySet = element;
                 $scope.selectedEntryIndex = 0;
                 $scope.selectedEntry = $scope.selectedEntrySet.entries[$scope.selectedEntryIndex];
             };
 
             $scope.sortTopics = function() {
-                fisherYates(jsonified);
+                fisherYates($scope.jsonified);
             };
 
             $scope.anotherTopic = function() {
-                fisherYates($scope.jsonified);
+                $scope.sortTopics();
 
                 $scope.selectedEntrySet = $scope.jsonified[0];
                 $scope.quizOnArray($scope.selectedEntrySet);
@@ -158,7 +172,7 @@
                 console.log("About to delete");
                 console.log(entry);
 
-                entryParent.entries.splice(entryParent.indexOf(entry), 1);
+                entryParent.entries.splice(entryParent.entries.indexOf(entry), 1);
             };
 
             $scope.recreateJson = function () {
@@ -184,6 +198,33 @@
 
                 console.log(x);
                 return x;
+            };
+
+            $scope.initAddMode = function () {
+                $scope.addMode = true;
+
+            };
+
+            $scope.add = function () {
+                console.log("Adding content");
+
+                var newContent = $scope.newContent;
+                var newContentAsArray = $scope.newContent.split("\n");
+
+                console.log(newContentAsArray);
+                var output = newContentAsArray.map(
+                    function (entry) {
+                        return {
+                            name: entry.name,
+                            dateReviewed: new Date(),
+                            entries: entry.entries
+                        };
+                    });
+
+                var newSet = { name: $scope.entryName, dateReviewed: new Date(), entries: newContentAsArray.map(function (entry) { return { text: entry }; }) };
+                console.log(angular.toJson(newSet));
+
+                $scope.jsonified.push(newSet);
             };
 
             $scope.selectedEntry = null;
