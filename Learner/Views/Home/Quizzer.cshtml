@@ -16,12 +16,13 @@
 
 <div ng-app="xyz">
     <div ng-controller="QuizCtrl" ng-init="init()">
-        <div id="itemDialog" class="modal hideXX" ng-show="selectedEntrySet && selectedEntrySet.entries.length > selectedEntryIndex" style="width: 300px; position: absolute">
+        <div id="itemDialog" class="modal hideXX" ng-show="selectedEntrySet && selectedEntrySet.entries.length > selectedEntryIndex" style="position: absolute">
             <div class="modal-header">{{selectedEntrySet.name}}</div>
             <div id="itemText" class="modal-body">{{selectedEntry.text}}</div>  
             <div class="modal-footer">
                 <a id="google" class="btn">Google!</a>
                 <a id="anotherTopic" class="btn" ng-click="anotherTopic()">Another Topic</a>
+                <a id="google" class="btn" ng-click="deleteEntry(selectedEntrySet, selectedEntry)">Delete</a>
                 <a class="btn btn-primary" ng-click="next()">Ok</a>
             </div>  
         </div>
@@ -41,7 +42,7 @@
         <pre>{{getScope()}}</pre>
         <div>
             
-            <div ng-repeat="quizTopic in jsonified">
+            <div ng-repeat="quizTopic in jsonified | filter:length">
                 <span ng-click="openTopic(quizTopic)">Name: {{quizTopic.name}} [{{quizTopic.entries[0].text.substring(0, 40)}}] ({{quizTopic.entries.length}})</span> <a href="#" ng-click="editSelected(quizTopic)">Edit</a>
                 
                  <div ng-show="editMode && quizTopic == selectedEntrySet">
@@ -122,7 +123,7 @@
             $scope.quizOnArray = function(element) {
                 console.debug("About to quiz");
 
-                fisherYates(element);
+                fisherYates(element.entries);
 
                 $scope.selectedEntrySet = element;
                 $scope.selectedEntryIndex = 0;
@@ -173,6 +174,8 @@
                 console.log(entry);
 
                 entryParent.entries.splice(entryParent.entries.indexOf(entry), 1);
+
+                $scope.next();
             };
 
             $scope.recreateJson = function () {
