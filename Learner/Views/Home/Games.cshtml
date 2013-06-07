@@ -1,0 +1,194 @@
+﻿@model Learner.Controllers.GameViewModel
+
+@{
+    ViewBag.Title = "Quizzer";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div ng-app="myapp">
+    <div ng-controller="QuizCtrl" ng-init="init()">
+        <div id="itemDialog" class="modal hideXX" ng-show="selectedEntrySet && selectedEntrySet.entries.length > selectedEntryIndex" style="position: absolute">
+            <div class="modal-header">{{selectedEntrySet.name}}</div>
+            <div id="itemText" class="modal-body">{{selectedEntry.text}}</div>  
+            <div class="modal-footer">
+                <a id="google" href="#" class="btn">Google!</a>
+                <a id="anotherTopic" href="#" class="btn" ng-click="anotherTopic()">Another Topic</a>
+                <a id="delete" href="#" class="btn" ng-click="deleteEntry(selectedEntrySet, selectedEntry)">Delete</a>
+                <a href="#" class="btn btn-primary" ng-click="next()">Ok</a>
+            </div>  
+        </div>
+    
+        Games List
+        <div ng-repeat="game in getGames">
+            <div ng-click="openGame(game)">
+                <span>{{game}}</span>
+            </div>
+        </div>
+
+        @*        <pre>{{getScope()}}</pre>*@
+    </div>
+</div>
+
+
+
+@section scripts
+{
+    <script type="text/javascript" src="~/Scripts/Data/quizzerData.js"></script>
+    <script type="text/javascript">
+        function fisherYates(myArray) {
+            var i = myArray.length, j, tempi, tempj;
+            if (i == 0) return false;
+            while (--i) {
+                j = Math.floor(Math.random() * (i + 1));
+                tempi = myArray[i];
+                tempj = myArray[j];
+                myArray[i] = tempj;
+                myArray[j] = tempi;
+            }
+        }
+
+        $("#google").click(function() {
+            var searchString = $("#itemText").text();
+            window.open("https://www.google.com/?q=" + searchString, '_blank');
+        });
+
+        var myapp = angular.module('myapp', ['firebase']);
+        app = angular.module("xyz", ['firebase', function() {
+
+        }]);
+
+        myapp.controller('QuizCtrl', ['$scope', 'angularFire', 'angularFire',
+            function QuizCtrl($scope, angularFire, angularFireCollection) {
+                $scope.canEdit = false;
+                $scope.myPlayerId = 0;
+
+                var promise = angularFire("https://jeff-test1.firebaseio.com/games/", $scope, 'games',
+                    {
+                    });
+                promise.then(function () {
+                    console.log("Got here");
+                    $scope.getGames = _.keys($scope.games);
+                });
+
+                $scope.openGame = function(game) {
+                    location.href = "game?gameId=" + game;
+                };
+                
+                $scope.$watch("selectedEntryIndex", function(newValue, oldValue) {
+                    console.log("selectedEntryIndex " + newValue);
+                    if ($scope.selectedEntrySet && newValue > $scope.selectedEntrySet.length) {
+                        $scope.selectedEntry = null;
+                        $scope.selectedEntryIndex = -1;
+                        $scope.selectedEntrySet = null;
+                        return;
+                    }
+
+                    if ($scope.selectedEntrySet)
+                        $scope.selectedEntry = $scope.selectedEntrySet.entries[newValue];
+                });
+
+                $scope.recreateJson = function() {
+                    var output = jsonified.map(
+                        function(entry) {
+                            return {
+                                name: entry.name,
+                                dateReviewed: new Date(),
+                                entries: entry.entries
+                            };
+                        });
+
+                    console.log(angular.toJson(output));
+                };
+
+                $scope.getScope = function() {
+                    var x = {
+                        selectedEntry: $scope.selectedEntry,
+                        setName: $scope.selectedEntrySet ? $scope.selectedEntrySet.name : "",
+                        selectedEntrySetLength: $scope.selectedEntrySet ? $scope.selectedEntrySet.entries.length : 1,
+                        selectedEntryIndex: $scope.selectedEntryIndex
+                    };
+
+                    console.log(x);
+                    return x;
+                };
+
+                $scope.initAddMode = function() {
+                    $scope.addMode = true;
+
+                };
+
+                $scope.add = function() {
+                    console.log("Adding content");
+
+                    var newContentAsArray = $scope.newContent.split("\n");
+
+                    console.log(newContentAsArray);
+
+                    var newSet = { name: $scope.entryName, dateReviewed: new Date(), entries: newContentAsArray.map(function(entry) { return { text: entry }; }) };
+                    console.log(angular.toJson(newSet));
+
+                    $scope.jsonified.push(newSet);
+
+                    // Hide
+                    $scope.entryName = "";
+                    $scope.newContent = "";
+                    $scope.addMode = false;
+                };
+
+                $scope.getFire = function() {
+                    var url = 'https://jeff-test1.firebaseio.com/';
+                    $scope.examples = angularFireCollection(url);
+                    $scope.addExample = function(ex) {
+                        $scope.examples.add(ex);
+                    };
+
+                    $scope.addExample({ message: "Hello" });
+                };
+
+                $scope.getFire3 = function() {
+                    var sampleChatRef = new Firebase('https://angulartests.firebaseio.com');
+                    var fredNameRef = sampleChatRef.child('learner');
+                    fredNameRef.set({ data: JSON.parse(angular.toJson($scope.jsonified)) });
+
+                    fredNameRef.on('value', function(nameSnapshot) {
+                        var y = nameSnapshot.val();
+                        // y now contains the object { first: 'Fred', last: 'Flintstone' }.
+                        // alert("Something updated");
+                        console.log("Updated");
+                    });
+                };
+
+                $scope.getFire2 = function() {
+                    var sampleChatRef = new Firebase('https://angulartests.firebaseio.com');
+                    var fredNameRef = sampleChatRef.child('users/fred/name');
+                    fredNameRef.set({ first: 'Fred', last: 'Flintstone' });
+
+                    fredNameRef.on('value', function(nameSnapshot) {
+                        var y = nameSnapshot.val();
+                        // y now contains the object { first: 'Fred', last: 'Flintstone' }.
+                        // alert("Something updated");
+                        console.log("Updated: " + y);
+                    });
+                };
+
+                $scope.selectedEntry = null;
+
+                function unAngularize(obj) {
+                    if (/^\$+/.test(key)) {
+                        val = undefined;
+                    } else if (isWindow(value)) {
+                        val = '$WINDOW';
+                    } else if (value && document === value) {
+                        val = '$DOCUMENT';
+                    } else if (isScope(value)) {
+                        val = '$SCOPE';
+                    }
+
+                    return val;
+                }
+            }
+        ]);
+
+    </script>
+}

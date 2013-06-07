@@ -34,6 +34,16 @@ namespace Learner.Controllers
             return View(new QuizzerViewModel());
         }
 
+        public ActionResult Game(int gameId)
+        {
+            return View(new GameViewModel() { GameId = gameId });
+        }
+
+        public ActionResult Games()
+        {
+            return View();
+        }
+
         public ActionResult StackOverflow()
         {
             return View();
@@ -42,5 +52,10 @@ namespace Learner.Controllers
 
     public class QuizzerViewModel
     {
+    }
+
+    public class GameViewModel
+    {
+        public int GameId { get; set; }
     }
 }
