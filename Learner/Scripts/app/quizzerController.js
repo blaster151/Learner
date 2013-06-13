@@ -1,85 +1,111 @@
-﻿function QuizCtrl($scope) {
-    $scope.jsonified = jsonified;
-    $scope.selectedEntry = null;
-    $scope.selectedEntryIndex = -1;
-    $scope.editMode = false;
+﻿app.controller("QuizModeCtrl", ["$scope", "$location", function ($scope, $location) {
+    console.log("initializing QuizModeCtrl");
+    console.log($scope.selectionInfo);
 
-    $scope.init = function () {
-        console.log("Initting");
+    $scope.anotherTopic = function () {
+        console.log("Another Topic");
 
-        $scope.jsonified.forEach(function (item) {
-            item.entries = item.entries.filter(function (item, index) {
-                return (item.text.length > 0);
-            });
-        });
-
-        console.log("Randomizing order of sets");
         $scope.sortTopics();
+        
+        $scope.selectionInfo.selectedEntrySet = $scope.jsonified[0];
+        $scope.quizOnArray($scope.selectionInfo.selectedEntrySet);
     };
 
-    $scope.openTopic = function (element) {
-        $scope.editMode = false;
+    $scope.next = function () {
+        console.log("Next clicked");
+        $scope.selectionInfo.selectedEntryIndex++;
+        //$scope.selectionInfo.selectedEntry = $scope.selectionInfo.selectedEntrySet[$scope.selectionInfo.selectedEntryIndex];
 
-        $scope.quizOnArray(element);
-
+        if ($scope.selectionInfo.selectedEntryIndex >= $scope.selectionInfo.selectedEntrySet.entries.length)
+            $location.path("/browse");
     };
 
-    $scope.quizOnArray = function (element) {
-        console.debug("About to quiz");
+    $scope.deleteEntry = function () {
+        console.log("About to delete");
 
-        fisherYates(element.entries);
+        var entryParent = $scope.selectionInfo.selectedEntrySet;
+        var entry = $scope.selectionInfo.selectedEntry;
 
-        $scope.selectedEntrySet = element;
-        $scope.selectedEntryIndex = 0;
-        $scope.selectedEntry = $scope.selectedEntrySet.entries[$scope.selectedEntryIndex];
+        entryParent.entries.splice(entryParent.entries.indexOf(entry), 1);
+
+        $scope.next();
     };
+
+    $scope.google = function () {
+        console.log("About to Google");
+        window.open("https://www.google.com/?q=" + $scope.selectionInfo.selectedEntry.text, '_blank');
+    };
+}]);
+
+app.controller("QuizCtrl", ["$scope", "$location", function ($scope, $location) {
+    console.log("initializing outer QuizModeCtrl");
+
+    $scope.jsonified = jsonified;
+
+
+    $scope.jsonified.forEach(function (item) {
+        item.entries = item.entries.filter(function (item, index) {
+            return (item.text.length > 0);
+        });
+    });
+
+    console.log("Randomizing order of sets");
 
     $scope.sortTopics = function () {
         fisherYates($scope.jsonified);
     };
 
-    $scope.anotherTopic = function () {
-        $scope.sortTopics();
+    $scope.sortTopics();
+    
 
-        $scope.selectedEntrySet = $scope.jsonified[0];
-        $scope.quizOnArray($scope.selectedEntrySet);
+
+
+
+
+    if (!$scope.selectionInfo)
+        $scope.selectionInfo = {
+            selectedEntrySet: null,
+            selectedEntry: null,
+            selectedEntryIndex: -1
+        };
+    
+    $scope.editMode = false;
+
+    $scope.init = function () {
+        console.log("Initting");
+
     };
 
-    $scope.showEntry = function (entry) {
-        $scope.selectedEntry = entry;
+    $scope.openTopic = function (topic) {
+        $scope.editMode = false;
+
+        $scope.quizOnArray(topic);
+        //$location.path("/quiz");
+        location.hash = "quiz";
     };
 
-    $scope.next = function () {
-        $scope.selectedEntryIndex++;
+    $scope.quizOnArray = function (element) {
+        console.debug("About to quiz");
+
+        $scope.selectionInfo.selectedEntrySet = element;
+
+        fisherYates($scope.selectionInfo.selectedEntrySet);
+        $scope.selectionInfo.selectedEntryIndex = 0;
+        $scope.selectionInfo.selectedEntry = $scope.selectionInfo.selectedEntrySet.entries[$scope.selectionInfo.selectedEntryIndex];
     };
 
-    $scope.$watch("selectedEntryIndex", function (newValue, oldValue) {
-        console.log("selectedEntryIndex " + newValue);
-        if ($scope.selectedEntrySet && newValue > $scope.selectedEntrySet.length) {
-            $scope.selectedEntry = null;
-            $scope.selectedEntryIndex = -1;
-            $scope.selectedEntrySet = null;
-            return;
-        }
+    $scope.$watch("selectionInfo.selectedEntryIndex", function (newValue, oldValue) {
+        console.log("selectionInfo.selectedEntryIndex " + newValue);
 
-        if ($scope.selectedEntrySet)
-            $scope.selectedEntry = $scope.selectedEntrySet.entries[newValue];
+        if ($scope.selectionInfo.selectedEntrySet)
+            $scope.selectionInfo.selectedEntry = $scope.selectionInfo.selectedEntrySet.entries[newValue];
     });
 
     $scope.editSelected = function (entry) {
         console.log("Editing");
 
-        $scope.selectedEntrySet = entry;
+        $scope.selectionInfo.selectedEntrySet = entry;
         $scope.editMode = true;
-    };
-
-    $scope.deleteEntry = function (entryParent, entry) {
-        console.log("About to delete");
-        console.log(entry);
-
-        entryParent.entries.splice(entryParent.entries.indexOf(entry), 1);
-
-        $scope.next();
     };
 
     $scope.recreateJson = function () {
@@ -97,10 +123,10 @@
 
     $scope.getScope = function () {
         var x = {
-            selectedEntry: $scope.selectedEntry,
-            setName: $scope.selectedEntrySet ? $scope.selectedEntrySet.name : "",
-            selectedEntrySetLength: $scope.selectedEntrySet ? $scope.selectedEntrySet.entries.length : 1,
-            selectedEntryIndex: $scope.selectedEntryIndex
+            selectedEntry: $scope.selectionInfo.selectedEntry,
+            setName: $scope.selectionInfo.selectedEntrySet ? $scope.selectionInfo.selectedEntrySet.name : "",
+            selectedEntrySetLength: $scope.selectionInfo.selectedEntrySet ? $scope.selectionInfo.selectedEntrySet.entries.length : 1,
+            selectedEntryIndex: $scope.selectionInfo.selectedEntryIndex
         };
 
         return x;
@@ -137,11 +163,9 @@
         $scope.addMode = false;
     };
 
-    $scope.selectedEntry = null;
-
     $scope.newestFirst = function () {
         $scope.jsonified.sort(function (a, b) {
             return a.dateReviewed < b.dateReviewed;
         });
     };
-}
+}]);

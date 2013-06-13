@@ -1,0 +1,33 @@
+﻿<div>BROWSE</div>
+
+<button ng-click="sortTopics()">Reorder</button>
+<button ng-click="newestFirst()">Newest First</button>
+<button ng-click="recreateJson()">Recreate</button>
+<button ng-click="initAddMode()">Add</button>
+        
+<div>
+    Filter: <input type="text" ng-model="filterCriteria" />
+</div>
+
+<div ng-show="addMode">
+    <input type="text" ng-model="entryName"></text>
+    <textarea ng-model="newContent">
+
+    </textarea>
+    <button ng-click="add()">Add</button>
+</div>
+        
+<pre>{{getScope()}}</pre>
+<div>
+            
+    <div ng-repeat="quizTopic in jsonified | filter:filterCriteria">
+        <span ng-click="openTopic(quizTopic)">Name: {{quizTopic.name}} [{{quizTopic.entries[0].text.substring(0, 40)}}] ({{quizTopic.entries.length}})</span> <a href="#" ng-click="editSelected(quizTopic)">Edit</a>
+                
+            <div ng-show="editMode && quizTopic == selectedEntrySet">
+            <input ng-model="quizTopic.name" />
+            <div ng-repeat="entry in quizTopic.entries">
+                <input ng-model="entry.text"></input><button ng-click="deleteEntry(quizTopic, entry)"><i class="icon-remove-circle"></i>Del</button>
+            </div>
+        </div>
+    </div>
+</div>

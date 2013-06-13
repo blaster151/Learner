@@ -1,0 +1,13 @@
+﻿<div>QUIZ</div>
+
+<div id="itemDialog" class="modal hideXX" nXXXg-show="selectionInfo.selectedEntrySet && selectionInfo.selectedEntrySet.entries.length > selectionInfo.selectedEntryIndex" style="width: 320px; position: absolute">
+    <div class="modal-header">{{selectionInfo.selectedEntrySet.name}} ({{selectionInfo.selectedEntryIndex + 1}} of {{selectionInfo.selectedEntrySet.entries.length}})</div>
+    <div id="itemText" class="modal-body">{{selectionInfo.selectedEntry.text}}</div>
+    
+    <div class="modal-footer">
+        <a id="google" class="btn" ng-click="google()">Google!</a>
+        <a id="anotherTopic" class="btn" ng-click="anotherTopic()">New Topic</a>
+        <a id="delete" class="btn" ng-click="deleteEntry()">Del</a>
+        <a class="btn btn-primary" ng-click="next()">Ok</a>
+    </div>  
+</div>
