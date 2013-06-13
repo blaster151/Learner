@@ -753,6 +753,13 @@ tr.pager td {
         footer p {
             margin: 0;
         }
+
+
+}
+
+.modal-header
+{
+    font-weight: bold;
 }
 
 #itemDialog {

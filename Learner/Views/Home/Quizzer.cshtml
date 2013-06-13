@@ -8,18 +8,19 @@
 
 <div ng-app="xyz">
     <div ng-controller="QuizCtrl" ng-init="init()">
-        <div id="itemDialog" class="modal hideXX" ng-show="selectedEntrySet && selectedEntrySet.entries.length > selectedEntryIndex" style="position: absolute">
+        <div id="itemDialog" class="modal hideXX" ng-show="selectedEntrySet && selectedEntrySet.entries.length > selectedEntryIndex" style="width: 320px; position: absolute">
             <div class="modal-header">{{selectedEntrySet.name}}</div>
             <div id="itemText" class="modal-body">{{selectedEntry.text}}</div>  
             <div class="modal-footer">
                 <a id="google" href="#" class="btn">Google!</a>
-                <a id="anotherTopic" href="#" class="btn" ng-click="anotherTopic()">Another Topic</a>
-                <a id="delete" href="#" class="btn" ng-click="deleteEntry(selectedEntrySet, selectedEntry)">Delete</a>
+                <a id="anotherTopic" href="#" class="btn" ng-click="anotherTopic()">New Topic</a>
+                <a id="delete" href="#" class="btn" ng-click="deleteEntry(selectedEntrySet, selectedEntry)">Del</a>
                 <a href="#" class="btn btn-primary" ng-click="next()">Ok</a>
             </div>  
         </div>
     
         <button ng-click="sortTopics()">Reorder</button>
+        <button ng-click="newestFirst()">Newest First</button>
         <button ng-click="recreateJson()">Recreate</button>
         <button ng-click="initAddMode()">Add</button>
 
@@ -229,6 +230,11 @@
 
             $scope.selectedEntry = null;
 
+            $scope.newestFirst = function() {
+                $scope.jsonified.sort(function(a, b) {
+                    return a.dateReviewed < b.dateReviewed;
+                });
+            };
 //            var updatedJson = quizTopics.map(function (value, index) { return { name: "", entries: value.split("\n") }; });
             //          console.log(JSON.stringify(updatedJson));
         }
