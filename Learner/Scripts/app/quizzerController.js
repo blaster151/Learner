@@ -165,7 +165,15 @@ app.controller("QuizCtrl", ["$scope", "$location", function ($scope, $location) 
 
     $scope.newestFirst = function () {
         $scope.jsonified.sort(function (a, b) {
-            return a.dateReviewed < b.dateReviewed;
+            return getDate(b.dateReviewed) - getDate(a.dateReviewed);
         });
+
+        function getDate(dateValue) {
+            if (dateValue) {
+                return new Date(dateValue.toString());
+            } else {
+                return new Date("01/01/2001");
+            }
+        }
     };
 }]);
