@@ -169,13 +169,32 @@
     </Compile>
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Content Include="Scripts\app\config.js" />
+    <TypeScriptCompile Include="Scripts\app\config.ts" />
+    <TypeScriptCompile Include="Scripts\app\app.ts" />
+    <Content Include="Scripts\app\app.js">
+      <DependentUpon>app.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\app\app.min.js">
+      <DependentUpon>app.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\app\config.js">
+      <DependentUpon>config.ts</DependentUpon>
+    </Content>
     <Content Include="Scripts\app\browse.html" />
-    <Content Include="Scripts\app\app.js" />
+    <Content Include="Scripts\app\config.min.js">
+      <DependentUpon>config.ts</DependentUpon>
+    </Content>
     <Content Include="Scripts\app\quiz.html" />
     <Content Include="Scripts\app\page2.html" />
     <Content Include="Scripts\app\page1.html" />
-    <Content Include="Scripts\app\quizzerController.js" />
+    <TypeScriptCompile Include="Scripts\app\quizzerController.ts" />
+    <Content Include="Scripts\app\quizzerController.js">
+      <DependentUpon>quizzerController.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\app\quizzerController.min.js">
+      <DependentUpon>quizzerController.ts</DependentUpon>
+    </Content>
+    <Content Include="Scripts\app\quizzerController2.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-responsive.css" />
@@ -259,6 +278,13 @@
     <Content Include="Scripts\knockout-2.1.0.debug.js" />
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
+    <Content Include="Scripts\typings\angularjs\angular-cookies.d.ts" />
+    <Content Include="Scripts\typings\angularjs\angular-mocks.d.ts" />
+    <Content Include="Scripts\typings\angularjs\angular-resource.d.ts" />
+    <Content Include="Scripts\typings\angularjs\angular-sanitize.d.ts" />
+    <Content Include="Scripts\typings\angularjs\angular-scenario.d.ts" />
+    <Content Include="Scripts\typings\angularjs\angular.d.ts" />
+    <Content Include="Scripts\typings\jquery\jquery.d.ts" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
