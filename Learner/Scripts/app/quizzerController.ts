@@ -117,11 +117,11 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", "angularFire", functi
     $scope.initWhenDataReady = function () {
         // $scope.jsonified = jsonified;
 
-        $scope.jsonified.forEach(function (item) {
-            item.entries = item.entries.filter(function (item, index) {
-                return (item.text.length > 0);
-            });
-        });
+        //$scope.jsonified.forEach(function (item) {
+        //    item.entries = item.entries.filter(function (item, index) {
+        //        return (item.text.length > 0);
+        //    });
+        //});
 
         $log.info("Randomizing order of sets");
 
@@ -132,6 +132,31 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", "angularFire", functi
         $scope.sortTopics();
 
         $scope.editMode = false;
+    };
+
+    $scope.importLegacy = function () {
+        var processedCtr: number = 0;
+        jsonified.forEach(function (newSet: any) {
+            processedCtr++;
+
+            if (processedCtr > 300)
+                return;
+
+            if (!newSet.name || newSet.name.length == 0)
+                return;
+            
+            // Firebase
+            if (!$scope.learnerEnvironment.topics)
+                $scope.learnerEnvironment.topics = [];
+            var newTopic = { name: newSet.name, entriesLength: newSet.entries.length };
+            $scope.learnerEnvironment.topics.push(newTopic);
+
+            var topicKeyName = "topic_" + newSet.name;
+            if (!$scope.learnerEnvironment.topicDetails)
+                $scope.learnerEnvironment.topicDetails = {};
+
+            $scope.learnerEnvironment.topicDetails[topicKeyName] = newSet;
+        });
     };
 
     $scope.openTopic = function (topic) {
@@ -215,6 +240,27 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", "angularFire", functi
         var newSet = { name: $scope.entryName, dateReviewed: new Date(), entries: newContentAsArray.map(function (entry) { return { text: entry }; }) };
 
         $scope.jsonified.push(newSet);
+
+
+
+
+
+        // Firebase
+        if (!$scope.learnerEnvironment.topics)
+            $scope.learnerEnvironment.topics = [];
+        var newTopic = { name: newSet.name, entriesLength: newSet.entries.length };
+        $scope.learnerEnvironment.topics.push(newTopic);
+
+        var topicKeyName = "topic_" + newSet.name;
+        if (!$scope.learnerEnvironment.topicDetails)
+            $scope.learnerEnvironment.topicDetails = {};
+
+        $scope.learnerEnvironment.topicDetails[topicKeyName] = newSet;
+
+
+
+
+
 
         // Hide
         $scope.entryName = "";
