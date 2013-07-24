@@ -136,6 +136,10 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", "angularFire", functi
 
     $scope.importLegacy = function () {
         var processedCtr: number = 0;
+
+        $scope.learnerEnvironment.topics.splice(0);
+        $scope.learnerEnvironment.topicDetails = {};
+
         jsonified.forEach(function (newSet: any) {
             processedCtr++;
 
@@ -143,7 +147,7 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", "angularFire", functi
                 return;
 
             if (!newSet.name || newSet.name.length == 0)
-                return;
+                newSet.name = "Imported" + processedCtr;
             
             // Firebase
             if (!$scope.learnerEnvironment.topics)
