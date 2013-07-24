@@ -322,4 +322,5 @@ interface IQuizModeScope extends ng.IScope {
     selectionInfo: SelectionInfo;
 
     jsonified: Array<Topic>;
+    editMode: boolean;
 }
