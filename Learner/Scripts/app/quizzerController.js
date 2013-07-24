@@ -22,6 +22,14 @@ app.controller("QuizModeCtrl", [
         $log.info("initializing QuizModeCtrl");
         $log.info($scope.selectionInfo);
 
+        $scope.setEditMode = function () {
+            $scope.editMode = true;
+        };
+
+        $scope.stopEditMode = function () {
+            $scope.editMode = false;
+        };
+
         $scope.anotherTopic = function () {
             $log.info("Another Topic");
 
@@ -61,28 +69,40 @@ app.controller("QuizModeCtrl", [
     }
 ]);
 
+var hasInitialized = false;
 app.controller("QuizCtrl", [
     "$scope",
     "$location",
     "$log",
-    function ($scope, $location, $log) {
+    "angularFire",
+    function ($scope, $location, $log, angularFire) {
         $log.info("initializing outer QuizModeCtrl");
 
-        $scope.jsonified = jsonified;
+        var ref = new Firebase('https://jeff-test1.firebaseio.com/learner');
 
-        $scope.jsonified.forEach(function (item) {
-            item.entries = item.entries.filter(function (item, index) {
-                return (item.text.length > 0);
+        var promise;
+        if (!hasInitialized) {
+            promise = angularFire(ref.limit(15), $scope, "learnerEnvironment", {});
+            promise.then(function () {
+                $log.info("Promise completed");
+
+                $scope.jsonified = [];
+                $scope.learnerEnvironment.topics.forEach(function (item) {
+                    $scope.jsonified.push({
+                        name: item.name,
+                        entries: $scope.getEntriesForTopic(item)
+                    });
+                });
+
+                $scope.initWhenDataReady();
+                $log.info($scope.jsonified);
+                $log.info("DONE");
+            }, function (err) {
+                $log.info("Error");
             });
-        });
 
-        $log.info("Randomizing order of sets");
-
-        $scope.sortTopics = function () {
-            fisherYates($scope.jsonified);
-        };
-
-        $scope.sortTopics();
+            hasInitialized = true;
+        }
 
         if (!$scope.selectionInfo)
             $scope.selectionInfo = {
@@ -91,10 +111,55 @@ app.controller("QuizCtrl", [
                 selectedEntryIndex: -1
             };
 
-        $scope.editMode = false;
+        $scope.getEntriesForTopic = function (forTopic) {
+            $log.info($scope.learnerEnvironment.topicDetails);
+            $log.info("topic_" + forTopic.name);
 
-        $scope.init = function () {
-            $log.info("Initting");
+            var result = $scope.learnerEnvironment.topicDetails["topic_" + forTopic.name].entries;
+
+            if (!result)
+                return []; else
+                return result;
+        };
+
+        $scope.initWhenDataReady = function () {
+            $log.info("Randomizing order of sets");
+
+            $scope.sortTopics = function () {
+                fisherYates($scope.jsonified);
+            };
+
+            $scope.sortTopics();
+
+            $scope.editMode = false;
+        };
+
+        $scope.importLegacy = function () {
+            var processedCtr = 0;
+
+            $scope.learnerEnvironment.topics.splice(0);
+            $scope.learnerEnvironment.topicDetails = {};
+
+            jsonified.forEach(function (newSet) {
+                processedCtr++;
+
+                if (processedCtr > 300)
+                    return;
+
+                if (!newSet.name || newSet.name.length == 0)
+                    newSet.name = "Imported" + processedCtr;
+
+                if (!$scope.learnerEnvironment.topics)
+                    $scope.learnerEnvironment.topics = [];
+                var newTopic = { name: newSet.name, entriesLength: newSet.entries.length };
+                $scope.learnerEnvironment.topics.push(newTopic);
+
+                var topicKeyName = "topic_" + newSet.name;
+                if (!$scope.learnerEnvironment.topicDetails)
+                    $scope.learnerEnvironment.topicDetails = {};
+
+                $scope.learnerEnvironment.topicDetails[topicKeyName] = newSet;
+            });
         };
 
         $scope.openTopic = function (topic) {
@@ -118,8 +183,9 @@ app.controller("QuizCtrl", [
         $scope.$watch("selectionInfo.selectedEntryIndex", function (newValue, oldValue) {
             $log.info("selectionInfo.selectedEntryIndex " + newValue);
 
-            if ($scope.selectionInfo.selectedEntrySet)
-                $scope.selectionInfo.selectedEntry = $scope.selectionInfo.selectedEntrySet.entries[newValue];
+            if (newValue)
+                if ($scope.selectionInfo.selectedEntrySet)
+                    $scope.selectionInfo.selectedEntry = $scope.selectionInfo.selectedEntrySet.entries[newValue];
         });
 
         $scope.editSelected = function (entry) {
@@ -176,6 +242,17 @@ app.controller("QuizCtrl", [
                 }) };
 
             $scope.jsonified.push(newSet);
+
+            if (!$scope.learnerEnvironment.topics)
+                $scope.learnerEnvironment.topics = [];
+            var newTopic = { name: newSet.name, entriesLength: newSet.entries.length };
+            $scope.learnerEnvironment.topics.push(newTopic);
+
+            var topicKeyName = "topic_" + newSet.name;
+            if (!$scope.learnerEnvironment.topicDetails)
+                $scope.learnerEnvironment.topicDetails = {};
+
+            $scope.learnerEnvironment.topicDetails[topicKeyName] = newSet;
 
             $scope.entryName = "";
             $scope.newContent = "";

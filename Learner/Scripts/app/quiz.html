@@ -2,7 +2,15 @@
 
 <div id="itemDialog" class="modal hideXX" nXXXg-show="selectionInfo.selectedEntrySet && selectionInfo.selectedEntrySet.entries.length > selectionInfo.selectedEntryIndex" style="width: 280px; left: 300px; position: absolute">
     <div class="modal-header">{{selectionInfo.selectedEntrySet.name}} ({{selectionInfo.selectedEntryIndex + 1}} of {{selectionInfo.selectedEntrySet.entries.length}})</div>
-    <div id="itemText" class="modal-body">{{selectionInfo.selectedEntry.text}}</div>
+    <div id="itemText" class="modal-body">
+        <div ng-show="!editMode" ng-click="setEditMode()">
+            {{selectionInfo.selectedEntry.text}}
+        </div>
+        <div ng-show="editMode">
+            <input type="text" ng-model="selectionInfo.selectedEntry.text"/>
+            <button ng-click="stopEditMode()">Done</button>
+        </div>
+    </div>
     
     <div class="modal-footer">
         <a id="google" class="btn" ng-click="google()">Google!</a>

@@ -20,6 +20,14 @@ app.controller("QuizModeCtrl", ["$scope", "$location", "$log", function ($scope:
     $log.info("initializing QuizModeCtrl");
     $log.info($scope.selectionInfo);
 
+    $scope.setEditMode = function () {
+        $scope.editMode = true;
+    };
+
+    $scope.stopEditMode = function () {
+        $scope.editMode = false;
+    };
+
     $scope.anotherTopic = function () {
         $log.info("Another Topic");
 
@@ -309,6 +317,8 @@ interface IQuizModeScope extends ng.IScope {
     google: () => void;
     quizOnArray: (Topic) => void;
     sortTopics: () => void;
+    setEditMode: () => void;
+    stopEditMode: () => void;
     selectionInfo: SelectionInfo;
 
     jsonified: Array<Topic>;
