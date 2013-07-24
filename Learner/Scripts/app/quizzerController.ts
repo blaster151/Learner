@@ -1,4 +1,5 @@
 /// <reference path="../typings/angularjs/angular.d.ts" />
+/// <reference path="../typings/angularfire.d.ts" />
 /// <reference path="app.ts" />
 
 var jsonified: Array<Topic>;
@@ -59,30 +60,38 @@ app.controller("QuizModeCtrl", ["$scope", "$location", "$log", function ($scope:
     };
 }]);
 
-app.controller("QuizCtrl", ["$scope", "$location", "$log", function ($scope, $location: ng.ILocationService, $log: ng.ILogService) {
+var hasInitialized: boolean = false;
+app.controller("QuizCtrl", ["$scope", "$location", "$log", "angularFire", function ($scope, $location: ng.ILocationService, $log: ng.ILogService, angularFire) {
     $log.info("initializing outer QuizModeCtrl");
 
-    $scope.jsonified = jsonified;
+    // AngularFire
+    var ref = new Firebase('https://jeff-test1.firebaseio.com/learner');
 
+    // This promise currently never returns
+    var promise;
+    if (!hasInitialized)
+    {
+        promise = angularFire(ref.limit(15), $scope, "learnerEnvironment", {});
+        promise.then(function () {
+            $log.info("Promise completed");
 
-    $scope.jsonified.forEach(function (item) {
-        item.entries = item.entries.filter(function (item, index) {
-            return (item.text.length > 0);
-        });
-    });
+            $scope.jsonified = [];
+            $scope.learnerEnvironment.topics.forEach(function (item) {
+                $scope.jsonified.push({
+                    name: item.name,
+                    entries: $scope.getEntriesForTopic(item)
+                });
+            });
 
-    $log.info("Randomizing order of sets");
+            $scope.initWhenDataReady();
+            $log.info($scope.jsonified);
+            $log.info("DONE");
+        }, function (err) {
+                $log.info("Error");
+            });
 
-    $scope.sortTopics = function () {
-        fisherYates($scope.jsonified);
-    };
-
-    $scope.sortTopics();
-
-
-
-
-
+        hasInitialized = true;
+    }
 
     if (!$scope.selectionInfo)
         $scope.selectionInfo = {
@@ -91,11 +100,38 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", function ($scope, $lo
             selectedEntryIndex: -1
         };
 
-    $scope.editMode = false;
+    $scope.getEntriesForTopic = function (forTopic) {
+        $log.info($scope.learnerEnvironment.topicDetails);
+        $log.info("topic_" + forTopic.name);
+        
+        var result = $scope.learnerEnvironment.topicDetails["topic_" + forTopic.name].entries;
 
-    $scope.init = function () {
-        $log.info("Initting");
+        if (!result)
+            return [];
+        else
+            return result;
+    };
 
+
+
+    $scope.initWhenDataReady = function () {
+        // $scope.jsonified = jsonified;
+
+        $scope.jsonified.forEach(function (item) {
+            item.entries = item.entries.filter(function (item, index) {
+                return (item.text.length > 0);
+            });
+        });
+
+        $log.info("Randomizing order of sets");
+
+        $scope.sortTopics = function () {
+            fisherYates($scope.jsonified);
+        };
+
+        $scope.sortTopics();
+
+        $scope.editMode = false;
     };
 
     $scope.openTopic = function (topic) {
@@ -119,8 +155,9 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", function ($scope, $lo
     $scope.$watch("selectionInfo.selectedEntryIndex", function (newValue, oldValue) {
         $log.info("selectionInfo.selectedEntryIndex " + newValue);
 
-        if ($scope.selectionInfo.selectedEntrySet)
-            $scope.selectionInfo.selectedEntry = $scope.selectionInfo.selectedEntrySet.entries[newValue];
+        if (newValue)
+            if ($scope.selectionInfo.selectedEntrySet)
+                $scope.selectionInfo.selectedEntry = $scope.selectionInfo.selectedEntrySet.entries[newValue];
     });
 
     $scope.editSelected = function (entry) {
