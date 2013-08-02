@@ -245,7 +245,7 @@ app.controller("QuizCtrl", [
 
             if (!$scope.learnerEnvironment.topics)
                 $scope.learnerEnvironment.topics = [];
-            var newTopic = { name: newSet.name, entriesLength: newSet.entries.length };
+            var newTopic = { name: newSet.name, dateReviewed: new Date(), entriesLength: newSet.entries.length };
             $scope.learnerEnvironment.topics.push(newTopic);
 
             var topicKeyName = "topic_" + newSet.name;
