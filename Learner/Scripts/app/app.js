@@ -1,2 +1,2 @@
-var app = angular.module("xyz", [], function () {
+var app = angular.module("xyz", ["firebase"], function () {
 });
