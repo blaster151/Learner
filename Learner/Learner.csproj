@@ -279,9 +279,6 @@
     <Content Include="Scripts\knockout-2.1.0.js" />
     <Content Include="Scripts\modernizr-2.5.3.js" />
     <TypeScriptCompile Include="Scripts\typings\angularfire.d.ts" />
-    <Content Include="Scripts\typings\angularfire.d.js">
-      <DependentUpon>angularfire.d.ts</DependentUpon>
-    </Content>
     <Content Include="Scripts\typings\angularjs\angular-cookies.d.ts" />
     <Content Include="Scripts\typings\angularjs\angular-mocks.d.ts" />
     <Content Include="Scripts\typings\angularjs\angular-resource.d.ts" />
