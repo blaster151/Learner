@@ -298,6 +298,7 @@ app.controller("QuizCtrl", ["$scope", "$location", "$log", "angularFire", functi
 class Topic {
     entries: Array<Entry>;
     selectedEntry: string;
+    dateReviewed: Date;
 }
 
 class Entry {
